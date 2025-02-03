@@ -4,34 +4,12 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
-#include <Crypto.h>
-#include <AES.h>
-
-// Pin Definitions
-#define SS            18
-#define RST           14
-#define DIO0          26
-#define ONE_WIRE_BUS  4
-#define MQ9_PIN       34
-#define MQ135_PIN     35
-#define LORA_FREQUENCY 915E6 // United States Standard 
-
-// Timings
-unsigned long lastSensorRead = 0;
-unsigned long lastSend       = 0;
-const unsigned long readInterval = 2UL * 60UL * 1000UL;  // 2 minutes
-const unsigned long sendInterval = 10UL * 60UL * 1000UL; // 10 minutes
-
-// OneWire + DallasTemperature
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
+#include <AESLib.h>
+#include "config.h"  // Include pinnout and freq definitions
 
 String NODE_ID = "NODE_1"; // Unique sensor ID
 
-// Thresholds for Wildfire Detection
-const float TEMP_THRESHOLD   = 50.0; // Example: 50°C as a dangerous temperature
-const float MQ9_THRESHOLD    = 200.0;
-const float MQ135_THRESHOLD  = 300.0;
+AESLib aes;  // Declare globally to avoid scope issues
 
 // AES-128 Encryption Key (16 bytes)
 byte aesKey[16] = {
@@ -41,30 +19,39 @@ byte aesKey[16] = {
   0xD6, 0xE7, 0xF8, 0x09
 };
 
-// Function to encrypt message using AES-128
 String encryptMessage(String message) {
-  AES128 aes;
-  aes.setKey(aesKey, 16);
+    int messageLength = message.length();
+    int paddedLength = ((messageLength / 16) + 1) * 16;
 
-  byte plaintext[16]   = {0};
-  byte ciphertext[16]  = {0};
+    byte plaintext[paddedLength];
+    byte ciphertext[paddedLength];
 
-  // Convert String to byte array (up to 15 chars + null terminator)
-  message.getBytes(plaintext, 16);
+    memset(plaintext, 0, paddedLength);
+    message.getBytes(plaintext, paddedLength);
 
-  // Encrypt in-place
-  aes.encryptBlock(ciphertext, plaintext);
+    // Generate a random IV
+    byte aesIV[16];
+    for (int i = 0; i < 16; i++) {
+        aesIV[i] = random(0, 256);
+    }
 
-  // Convert encrypted bytes back to hex string
-  String encryptedMsg = "";
-  for (int i = 0; i < 16; i++) {
-    // Each byte as two hex digits
-    if (ciphertext[i] < 0x10) encryptedMsg += "0"; 
-    encryptedMsg += String(ciphertext[i], HEX);
-  }
+    aes.encrypt(plaintext, paddedLength, ciphertext, aesKey, 128, aesIV);
 
-  return encryptedMsg;
+    // Convert IV + Ciphertext to HEX
+    String encryptedMsg = "";
+    for (int i = 0; i < 16; i++) {  // Append IV first
+        if (aesIV[i] < 0x10) encryptedMsg += "0";
+        encryptedMsg += String(aesIV[i], HEX);
+    }
+    for (int i = 0; i < paddedLength; i++) {  // Append Ciphertext
+        if (ciphertext[i] < 0x10) encryptedMsg += "0";
+        encryptedMsg += String(ciphertext[i], HEX);
+    }
+
+    return encryptedMsg;
 }
+
+
 
 // Helper to send data over LoRa
 void sendLoRaMessage(String type, float temperature, int mq9_value, int mq135_value) {
@@ -98,23 +85,41 @@ void sendLoRaMessage(String type, float temperature, int mq9_value, int mq135_va
   Serial.println("---------------------------------------------------");
 }
 
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
+
 void setup() {
-  Serial.begin(115200);
-  while (!Serial);
+    Serial.begin(115200);
+    while (!Serial);
 
-  Serial.println("Initializing Secure Sensor Node...");
+    delay(2000); // Wait 2 seconds 
 
-  // Initialize LoRa
-  LoRa.setPins(SS, RST, DIO0);
-  if (!LoRa.begin(LORA_FREQUENCY)) {
-    Serial.println("LoRa init failed!");
-    while (true);
-  }
+    Serial.println("Initializing Secure Sensor Node...");
 
-  // Initialize Temperature Sensor
-  sensors.begin();
+    // Initialize SPI with correct pins
+    SPI.begin(SCK, MISO, MOSI, SS);
 
-  Serial.println("Sensor Node Ready.");
+    delay(2000); 
+
+    // Initialize LoRa with explicit SPI object
+    LoRa.setPins(SS, RST, DIO0);
+
+    delay(2000); 
+
+    if (!LoRa.begin(LORA_FREQUENCY)) {
+        Serial.println("LoRa init failed!");
+        while (true); // Halt if initialization fails
+    }
+
+    Serial.println("LoRa initialized successfully.");
+
+    // Initialize Temperature Sensor
+    sensors.begin();
+
+    delay(2000); 
+
+    Serial.println("Sensor Node Ready.");
 }
 
 void loop() {
