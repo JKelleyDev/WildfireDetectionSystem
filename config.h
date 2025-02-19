@@ -3,13 +3,13 @@
 
 // SPI (VSPI) Pins for LoRa Communication
 #define SCK   18   // SPI Clock
-#define MISO  19   // SPI MISO (Master In, Slave Out)
-#define MOSI  23   // SPI MOSI (Master Out, Slave In)
-#define SS    5    // LoRa Chip Select (NSS)
+#define MISO  16   // SPI MISO (Master In, Slave Out)
+#define MOSI  17   // SPI MOSI (Master Out, Slave In)
+#define SS    19    // LoRa Chip Select (NSS)
 
 // LoRa Module Pins
-#define RST   14   // LoRa Reset
-#define DIO0  26   // LoRa Interrupt Request (IRQ)
+#define RST   15   // LoRa Reset
+#define DIO1  13   // LoRa Interrupt Request (IRQ)
 
 // Sensor & Additional Pins
 #define ONE_WIRE_BUS  4   // Temperature Sensor (e.g., DS18B20)

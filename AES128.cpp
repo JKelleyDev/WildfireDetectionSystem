@@ -269,4 +269,16 @@
      AESTiny128::clear();
  }
 
+ /**
+ * @brief Adds padding to the plain text. Padding added as follows:
+ * Block Size: Always 16 for 128 bit
+ * Padding Size (# of bytes to add as padding): block size - (plain
+ */
+void padPKCS7(std::vector<uint8_t>& data, size_t blockSize) {
+     size_t padding = blockSize - (data.size() % blockSize);
+     for (size_t i = 0; i < padding; i++) {
+         data.push_back(static_cast<uint8_t>(padding));
+     }
+ }
+
  #endif // CRYPTO_AES_DEFAULT
