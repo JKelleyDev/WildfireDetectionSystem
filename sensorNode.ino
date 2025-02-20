@@ -194,5 +194,5 @@ void loop() {
   // }
 
     sendLoRaMessage("Update", 50.0, 500, 500); 
-    delay(2000); 
+    
 }
