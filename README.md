@@ -14,6 +14,10 @@ Must use ESP32 friedly IDE, recomended to use Arduinio IDE
 [MacOS(Silicon)](https://downloads.arduino.cc/arduino-ide/arduino-ide_2.3.4_macOS_arm64.dmg)
 [MacOS(Intel)]( https://downloads.arduino.cc/arduino-ide/arduino-ide_2.3.4_macOS_64bit.dmg)
 
+#### Arduino Setup Instructions 
+[Quick Start Guide](https://docs.heltec.org/en/node/esp32/esp32_general_docs/quick_start.html)
+
+
 
 
 
