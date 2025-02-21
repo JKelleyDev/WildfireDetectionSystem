@@ -1,7 +1,7 @@
 # Wildfire Dectection System 
 
 ## Hardware
-- Heltec ESP32 WiFi LoRa V3 https://heltec.org/project/wifi-lora-32-v3/
+- [Heltec ESP32 WiFi LoRa V3]( https://heltec.org/project/wifi-lora-32-v3/)
 - MQ-9 Sensor
 - MQ-135 Sensor
 - ESP32 compatable temperature sensor 
