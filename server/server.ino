@@ -6,8 +6,8 @@
 SSD1306Wire factory_display(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED);
 
 // Replace with your WiFi credentials
-const char* ssid = "R&J";      // Your WiFi network name
-const char* password = "KittyKai@2022"; // Your WiFi password
+const char* ssid = "XXXXXX";      // Your WiFi network name
+const char* password = "XXXXXXX"; // Your WiFi password
 
 WiFiServer server(80);
 
