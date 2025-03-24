@@ -18,20 +18,22 @@ const sensorLocations = {
   // Add more as needed
 };
 
-// Store sensor data with last update timestamp
+// Store sensor data (initialized with defaults from sensorLocations)
 let sensorData = {};
-
-// Initialize sensorData with all known sensors
 Object.keys(sensorLocations).forEach(sensorId => {
   sensorData[sensorId] = {
     sensor_id: sensorId,
-    temperature: null,
+    temperature: null, // Default: no data yet
     mq9: null,
     mq135: null,
     lat: sensorLocations[sensorId].lat,
-    lon: sensorLocations[sensorId].lon,
-    lastUpdate: null // Null until data received
+    lon: sensorLocations[sensorId].lon
   };
+});
+
+// Endpoint to get all sensors (initial load)
+app.get('/sensors', (req, res) => {
+  res.json(Object.values(sensorData));
 });
 
 // Handle POST requests from receiver node
@@ -39,29 +41,25 @@ app.post('/update', (req, res) => {
   const data = req.body;
   const sensorId = data.sensor_id;
 
-  // Only update if sensor is known
-  if (sensorLocations[sensorId]) {
-    const enrichedData = {
-      ...data,
-      lat: sensorLocations[sensorId].lat,
-      lon: sensorLocations[sensorId].lon,
-      lastUpdate: Date.now() // Timestamp in milliseconds
-    };
-    sensorData[sensorId] = enrichedData;
-    console.log('Received and enriched data:', enrichedData);
-    io.emit('sensorUpdate', enrichedData);
-  }
+  // Look up GPS coordinates
+  const location = sensorLocations[sensorId] || { lat: 0, lon: 0 };
+  const enrichedData = {
+    sensor_id: sensorId,
+    temperature: data.temperature,
+    mq9: data.mq9,
+    mq135: data.mq135,
+    lat: location.lat,
+    lon: location.lon
+  };
+
+  sensorData[sensorId] = enrichedData;
+  console.log('Received and enriched data:', enrichedData);
+  io.emit('sensorUpdate', enrichedData); // Broadcast to clients
   res.sendStatus(200);
 });
 
 // Serve static files
 app.use(express.static('public'));
-
-// Send initial sensor data to new clients
-io.on('connection', (socket) => {
-  console.log('New client connected');
-  socket.emit('initialSensors', Object.values(sensorData));
-});
 
 const PORT = 3000;
 server.listen(PORT, '0.0.0.0', () => {
