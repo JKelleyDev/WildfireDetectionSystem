@@ -16,24 +16,28 @@ const chart = new Chart(ctx, {
       { label: 'MQ135', data: [], borderColor: 'green', fill: false }
     ]
   },
-  options: { scales: { x: { type: 'time', time: { unit: 'second' } } } }
+  options: {
+    scales: {
+      x: { type: 'time', time: { unit: 'second' } }
+    }
+  }
 });
 
 const socket = io('http://143.110.193.195:3000');
 
 socket.on('sensorUpdate', (data) => {
-  const { sensor_id, temperature, mq9, mq135, lat, lon } = data;
+  const { sensor_id, temperature, mq9, mq135, lat, lon, connected } = data;
+  const status = connected ? `Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}` : 'Disconnected';
 
   if (markers[sensor_id]) {
-    markers[sensor_id].setLatLng([lat, lon]);
-    markers[sensor_id].setPopupContent(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+    markers[sensor_id].setLatLng([lat, lon]).setPopupContent(`Sensor: ${sensor_id}<br>${status}`);
   } else {
     markers[sensor_id] = L.marker([lat, lon])
       .addTo(map)
-      .bindPopup(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+      .bindPopup(`Sensor: ${sensor_id}<br>${status}`);
   }
 
-  if (temperature !== 0 || mq9 !== 0 || mq135 !== 0) {
+  if (connected) {
     const time = new Date();
     chart.data.labels.push(time);
     chart.data.datasets[0].data.push(temperature);
