@@ -12,38 +12,57 @@ app.use(cors());
 
 // Lookup table for sensor chip IDs and their GPS coordinates
 const sensorLocations = {
-  "abcd1234ef56": { lat: 37.7749, lon: -122.4194 }, // Example: San Francisco
-  "7890ghij12kl": { lat: 34.0522, lon: -118.2437 }, // Example: Los Angeles
-  "mnop3456qrst": { lat: 40.7128, lon: -74.0060 }   // Example: New York
-  // Add more sensor chip IDs and their coordinates here
+  "abcd1234ef56": { lat: 37.7749, lon: -122.4194 },
+  "7890ghij12kl": { lat: 34.0522, lon: -118.2437 },
+  "mnop3456qrst": { lat: 40.7128, lon: -74.0060 }
+  // Add more as needed
 };
 
-// Store sensor data
+// Store sensor data with last update timestamp
 let sensorData = {};
+
+// Initialize sensorData with all known sensors
+Object.keys(sensorLocations).forEach(sensorId => {
+  sensorData[sensorId] = {
+    sensor_id: sensorId,
+    temperature: null,
+    mq9: null,
+    mq135: null,
+    lat: sensorLocations[sensorId].lat,
+    lon: sensorLocations[sensorId].lon,
+    lastUpdate: null // Null until data received
+  };
+});
 
 // Handle POST requests from receiver node
 app.post('/update', (req, res) => {
   const data = req.body;
   const sensorId = data.sensor_id;
 
-  // Look up GPS coordinates from the table
-  const location = sensorLocations[sensorId] || { lat: 0, lon: 0 }; // Default to (0,0) if unknown
-  const enrichedData = {
-    ...data,
-    lat: location.lat,
-    lon: location.lon
-  };
-
-  sensorData[sensorId] = enrichedData;
-  console.log('Received and enriched data:', enrichedData);
-  io.emit('sensorUpdate', enrichedData); // Broadcast to clients
+  // Only update if sensor is known
+  if (sensorLocations[sensorId]) {
+    const enrichedData = {
+      ...data,
+      lat: sensorLocations[sensorId].lat,
+      lon: sensorLocations[sensorId].lon,
+      lastUpdate: Date.now() // Timestamp in milliseconds
+    };
+    sensorData[sensorId] = enrichedData;
+    console.log('Received and enriched data:', enrichedData);
+    io.emit('sensorUpdate', enrichedData);
+  }
   res.sendStatus(200);
 });
 
-// Serve static files (HTML, CSS, JS)
+// Serve static files
 app.use(express.static('public'));
 
-// Start server
+// Send initial sensor data to new clients
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  socket.emit('initialSensors', Object.values(sensorData));
+});
+
 const PORT = 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
