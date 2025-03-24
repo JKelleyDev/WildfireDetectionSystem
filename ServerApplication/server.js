@@ -28,6 +28,7 @@ Object.keys(sensorLocations).forEach(sensorId => {
     mq135: 0,        // Placeholder value
     lat: sensorLocations[sensorId].lat,
     lon: sensorLocations[sensorId].lon
+    connected: false // Add this to track connection status
   };
 });
 
@@ -36,7 +37,7 @@ app.post('/update', (req, res) => {
   const data = req.body;
   const sensorId = data.sensor_id;
   const location = sensorLocations[sensorId] || { lat: 0, lon: 0 };
-  const enrichedData = { ...data, lat: location.lat, lon: location.lon };
+  const enrichedData = { ...data, lat: location.lat, lon: location.lon, connected: true };
   sensorData[sensorId] = enrichedData;
   console.log('Received and enriched data:', enrichedData);
   io.emit('sensorUpdate', enrichedData);
