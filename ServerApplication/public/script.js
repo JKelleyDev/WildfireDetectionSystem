@@ -1,10 +1,15 @@
 // Initialize Leaflet map
-const map = L.map('map').setView([37.7749, -122.4194], 5); // Wider default view
+const map = L.map('map').setView([37.7749, -122.4194], 5);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
 }).addTo(map);
 
 const markers = {};
+
+// Define custom icons for sensor states
+const grayIcon = L.divIcon({ className: 'sensor-icon', html: '<div style="background-color: gray; width: 20px; height: 20px; border-radius: 50%;"></div>' });
+const greenIcon = L.divIcon({ className: 'sensor-icon', html: '<div style="background-color: green; width: 20px; height: 20px; border-radius: 50%;"></div>' });
+const redIcon = L.divIcon({ className: 'sensor-icon', html: '<div style="background-color: red; width: 20px; height: 20px; border-radius: 50%;"></div>' });
 
 // Initialize Chart.js
 const ctx = document.getElementById('sensorChart').getContext('2d');
@@ -22,22 +27,53 @@ const chart = new Chart(ctx, {
 });
 
 // Connect to WebSocket server
-const socket = io('http://YOUR_DROPLET_IP:3000'); // Replace with Droplet IP
+const socket = io('http://143.110.193.195:3000'); // Use your Droplet IP
 
-socket.on('sensorUpdate', (data) => {
-  const { sensor_id, temperature, mq9, mq135, lat, lon } = data;
+// Function to determine fire risk
+function isFireRisk(temperature, mq9, mq135) {
+  return temperature > 30 || mq9 > 500; // Example thresholds; adjust as needed
+}
 
-  // Update map
-  if (markers[sensor_id]) {
-    markers[sensor_id].setLatLng([lat, lon]);
-    markers[sensor_id].setPopupContent(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+// Function to update marker state
+function updateMarker(sensor) {
+  const { sensor_id, temperature, mq9, mq135, lat, lon, lastUpdate } = sensor;
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+  let icon;
+  if (!lastUpdate || (now - lastUpdate > oneHour)) {
+    icon = grayIcon; // No data or stale
+  } else if (isFireRisk(temperature, mq9, mq135)) {
+    icon = redIcon; // Fire risk
   } else {
-    markers[sensor_id] = L.marker([lat, lon])
-      .addTo(map)
-      .bindPopup(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+    icon = greenIcon; // No fire risk
   }
 
-  // Update chart (example: show data for the first sensor or a selected one)
+  if (markers[sensor_id]) {
+    markers[sensor_id].setLatLng([lat, lon]).setIcon(icon);
+    markers[sensor_id].setPopupContent(
+      `Sensor: ${sensor_id}<br>Temp: ${temperature ?? 'N/A'}°C<br>MQ9: ${mq9 ?? 'N/A'}<br>MQ135: ${mq135 ?? 'N/A'}`
+    );
+  } else {
+    markers[sensor_id] = L.marker([lat, lon], { icon })
+      .addTo(map)
+      .bindPopup(
+        `Sensor: ${sensor_id}<br>Temp: ${temperature ?? 'N/A'}°C<br>MQ9: ${mq9 ?? 'N/A'}<br>MQ135: ${mq135 ?? 'N/A'}`
+      );
+  }
+}
+
+// Handle initial sensor data
+socket.on('initialSensors', (sensors) => {
+  sensors.forEach(sensor => updateMarker(sensor));
+});
+
+// Handle sensor updates
+socket.on('sensorUpdate', (data) => {
+  updateMarker(data);
+
+  // Update chart (example: first sensor or selected)
+  const { sensor_id, temperature, mq9, mq135 } = data;
   if (Object.keys(markers).length === 1 || chart.data.datasets[0].label === sensor_id) {
     const time = new Date();
     chart.data.labels.push(time);
