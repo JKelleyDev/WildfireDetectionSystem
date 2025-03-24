@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>IoT Sensor Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 400px; }
+    #chart-container { width: 600px; height: 300px; margin-top: 20px; }
+  </style>
 </head>
 <body>
   <div id="map"></div>
   <div id="chart-container">
     <canvas id="sensorChart"></canvas>
   </div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.min.js"></script>
-  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
-  <script src="script.js"></script>
+  <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="/node_modules/chart.js/dist/chart.umd.js"></script>
+  <script src="/node_modules/date-fns/dist/date-fns.min.js"></script>
+  <script src="/node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.min.js"></script>
+  <script src="/node_modules/socket.io-client/dist/socket.io.min.js"></script>
+  <script src="/script.js"></script>
 </body>
 </html>
