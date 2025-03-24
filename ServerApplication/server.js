@@ -27,7 +27,7 @@ Object.keys(sensorLocations).forEach(sensorId => {
     mq9: 0,          // Placeholder value
     mq135: 0,        // Placeholder value
     lat: sensorLocations[sensorId].lat,
-    lon: sensorLocations[sensorId].lon
+    lon: sensorLocations[sensorId].lon,
     connected: false // Add this to track connection status
   };
 });
