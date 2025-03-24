@@ -4,6 +4,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 const markers = {};
+const connectedIcon = L.icon({ iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png', iconSize: [38, 95] });
+const disconnectedIcon = L.icon({ iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png', iconSize: [38, 95] });
 
 const ctx = document.getElementById('sensorChart').getContext('2d');
 const chart = new Chart(ctx, {
@@ -22,19 +24,24 @@ const chart = new Chart(ctx, {
 const socket = io('http://143.110.193.195:3000');
 
 socket.on('sensorUpdate', (data) => {
-  const { sensor_id, temperature, mq9, mq135, lat, lon } = data;
+  const { sensor_id, temperature, mq9, mq135, lat, lon, connected = false } = data;
+
+  // Determine if the sensor is disconnected (all values are 0 and connected is false)
+  const isDisconnected = !connected && temperature === 0 && mq9 === 0 && mq135 === 0;
+  const statusText = isDisconnected ? 'Disconnected' : `Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`;
 
   if (markers[sensor_id]) {
     markers[sensor_id].setLatLng([lat, lon]);
-    markers[sensor_id].setPopupContent(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+    markers[sensor_id].setPopupContent(`Sensor: ${sensor_id}<br>${statusText}`);
+    markers[sensor_id].setIcon(isDisconnected ? disconnectedIcon : connectedIcon);
   } else {
-    markers[sensor_id] = L.marker([lat, lon])
+    markers[sensor_id] = L.marker([lat, lon], { icon: isDisconnected ? disconnectedIcon : connectedIcon })
       .addTo(map)
-      .bindPopup(`Sensor: ${sensor_id}<br>Temp: ${temperature}°C<br>MQ9: ${mq9}<br>MQ135: ${mq135}`);
+      .bindPopup(`Sensor: ${sensor_id}<br>${statusText}`);
   }
 
-  // Optional: Update chart only if sensors are online later
-  if (temperature !== 0 || mq9 !== 0 || mq135 !== 0) { // Skip placeholders
+  // Update chart only for connected sensors with real data
+  if (!isDisconnected) {
     const time = new Date();
     chart.data.labels.push(time);
     chart.data.datasets[0].data.push(temperature);
