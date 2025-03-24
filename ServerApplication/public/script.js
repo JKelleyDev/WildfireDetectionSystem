@@ -9,12 +9,8 @@ const ctx = document.getElementById('sensorChart').getContext('2d');
 const chart = new Chart(ctx, {
   type: 'line',
   data: {
-    labels: [],
-    datasets: [
-      { label: 'Temperature', data: [], borderColor: 'red', fill: false },
-      { label: 'MQ9', data: [], borderColor: 'blue', fill: false },
-      { label: 'MQ135', data: [], borderColor: 'green', fill: false }
-    ]
+    labels: [new Date(), new Date(Date.now() + 1000)],
+    datasets: [{ label: 'Test', data: [1, 2], borderColor: 'red', fill: false }]
   },
   options: {
     scales: {
