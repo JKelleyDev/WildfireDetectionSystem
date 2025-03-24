@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+#map {
+  height: 70vh;
+  width: 100%;
+}
+#chart-container {
+  height: 30vh;
+  width: 100%;
+  padding: 10px;
+}
