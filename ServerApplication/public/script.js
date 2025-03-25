@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const socket = io('http://143.110.193.195:3000');
+  const socket = io('http://143.110.193.195:80');
 
   socket.on('sensorUpdate', (data) => {
     const { sensor_id, temperature, mq9, mq135, lat, lon, fireRisk, connected } = data;
