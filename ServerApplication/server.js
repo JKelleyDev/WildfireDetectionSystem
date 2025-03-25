@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
   Object.values(sensorData).forEach(data => socket.emit('sensorUpdate', data));
 });
 
-const PORT = 3000;
+const PORT = 80;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
