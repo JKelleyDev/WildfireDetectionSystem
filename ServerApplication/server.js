@@ -15,7 +15,7 @@ app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // Predefined sensor locations (like Arduino’s initSensorData)
 const sensorLocations = {
-  "abcd1234ef56": { lat: 37.7749, lon: -122.4194 },
+  "f4e53e43ca48": { lat: 37.7749, lon: -122.4194 }, // sensor node
   "7890ghij12kl": { lat: 34.0522, lon: -118.2437 },
   "mnop3456qrst": { lat: 40.7128, lon: -74.0060 }
 };
