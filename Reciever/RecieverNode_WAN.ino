@@ -19,8 +19,8 @@
 #define BUFFER_SIZE         256
 
 // WiFi credentials
-const char* ssid = "R-J";       // Replace with your WiFi SSID
-const char* password = "KittyKai@2022"; // Replace with your WiFi password
+const char* ssid = "XXXXXXXX";       // Replace with your WiFi SSID
+const char* password = "XXXXXXXXX"; // Replace with your WiFi password
 
 // Server details (adjusted for SSH tunneling)
 const char* serverName = "http://143.110.193.195/update"; // Localhost port forwarded via SSH tunnel
