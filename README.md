@@ -28,8 +28,8 @@ Follow these steps to set up a new Arduino sketch and use specific files from th
 
 ### 2. Download Specific Files from This Repository
 To use this project, you only need the following files from this repository:
-- `SensorNode2.0.ino` – The sensor Arduino sketch file.
-- `RecieverNode2.0.ino` – The reciever Arduino sketch file (seperate sketch needed).
+- `SensorNode_WAN.0.ino` – The sensor Arduino sketch file.
+- `RecieverNode_WAN.0.ino` – The reciever Arduino sketch file (Make sure to change WiFi credentials)
 
 Here’s how to get them:
 1. **Navigate to the Repository**: Open this GitHub repository in your browser.
