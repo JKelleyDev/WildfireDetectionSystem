@@ -6,15 +6,14 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     #map { height: 400px; width: 100%; border: 1px solid black; }
-    #chart-container { width: 600px; height: 300px; margin-top: 20px; }
+    /* You can also remove or ignore this if no other elements need it */
+    /* #chart-container { width: 600px; height: 300px; margin-top: 20px; } */
   </style>
 </head>
 <body>
   <h1>Fire Risk Map</h1>
   <div id="map"></div>
-  <div id="chart-container">
-    <canvas id="sensorChart"></canvas>
-  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/min/moment.min.js"></script>
