@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .setPopupContent(`Sensor: ${sensor_id}<br>${status}`)
         .setStyle({ color });
     } else {
-      markers[sensor_id] = L.circleMarker([lat, lon], {
-        radius: 10,
+      markers[sensor_id] = L.circle([lat, lon], {
+        radius: 2000,
         color: color,
         fillOpacity: 0.5
       }).addTo(map).bindPopup(`Sensor: ${sensor_id}<br>${status}`);
