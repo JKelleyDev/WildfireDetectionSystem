@@ -13,12 +13,13 @@ app.use(cors());
 app.use(express.static('public'));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
-// Predefined sensor locations (like Arduino’s initSensorData)
+// Predefined sensor locations (updated to be near SDSU campus)
 const sensorLocations = {
-  "f4e53e43ca48": { lat: 37.7749, lon: -122.4194 }, // sensor node
-  "7890ghij12kl": { lat: 34.0522, lon: -118.2437 },
-  "mnop3456qrst": { lat: 40.7128, lon: -74.0060 }
+  "f4e53e43ca48": { lat: 32.7757, lon: -117.0715 }, // SDSU main
+  "7890ghij12kl": { lat: 32.7772, lon: -117.0678 }, // near SDSU Student Union
+  "mnop3456qrst": { lat: 32.7730, lon: -117.0742 }  // near Viejas Arena
 };
+
 
 // Initialize sensor data
 let sensorData = {};
