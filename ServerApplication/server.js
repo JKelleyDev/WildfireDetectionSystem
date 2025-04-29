@@ -35,21 +35,43 @@ Object.keys(sensorLocations).forEach(sensorId => {
   };
 });
 
-// Handle sensor updates (like Arduino’s POST logic)
+// Handle sensor updates (improved fire detection logic)
 app.post('/update', (req, res) => {
   const data = req.body;
   const sensorId = data.sensor_id;
+
   if (sensorData[sensorId]) {
+    // Update the live sensor readings
     sensorData[sensorId].temperature = data.temperature || 0;
     sensorData[sensorId].mq9 = data.mq9 || 0;
     sensorData[sensorId].mq135 = data.mq135 || 0;
-    sensorData[sensorId].fireRisk = (data.temperature > 50 || data.mq9 > 200) ? "High" : "Low";
     sensorData[sensorId].connected = true;
+
+    // Fire detection logic
+    const temp = sensorData[sensorId].temperature;
+    const mq9 = sensorData[sensorId].mq9;
+    const mq135 = sensorData[sensorId].mq135;
+
+    let fireRisk = "Low";
+
+    // Check against thresholds
+    if (temp > 55 || (mq9 > 365 * 1.5) || (mq135 > 1000 * 1.5)) {
+      fireRisk = "High";
+    } else if (temp > 45 || (mq9 > 365 * 1.2) || (mq135 > 1000 * 1.2)) {
+      fireRisk = "Moderate";
+    } else {
+      fireRisk = "Low";
+    }
+
+    sensorData[sensorId].fireRisk = fireRisk;
+
     console.log('Sensor update:', sensorData[sensorId]);
     io.emit('sensorUpdate', sensorData[sensorId]);
   }
+
   res.sendStatus(200);
 });
+
 
 // Send initial data to clients
 io.on('connection', (socket) => {
