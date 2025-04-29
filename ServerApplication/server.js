@@ -13,13 +13,12 @@ app.use(cors());
 app.use(express.static('public'));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
-// Predefined sensor locations (updated to be near SDSU campus)
+// Predefined sensor locations (1.5 km apart near SDSU)
 const sensorLocations = {
-  "f4e53e43ca48": { lat: 32.7757, lon: -117.0715 }, // SDSU main
-  "7890ghij12kl": { lat: 32.7772, lon: -117.0678 }, // near SDSU Student Union
-  "mnop3456qrst": { lat: 32.7730, lon: -117.0742 }  // near Viejas Arena
+  "f4e53e43ca48": { lat: 32.7757, lon: -117.0715 }, // SDSU Main Campus
+  "7890ghij12kl": { lat: 32.7850, lon: -117.0620 }, // North-East, ~1.5 km away
+  "mnop3456qrst": { lat: 32.7650, lon: -117.0810 }  // South-West, ~1.5 km away
 };
-
 
 // Initialize sensor data
 let sensorData = {};
